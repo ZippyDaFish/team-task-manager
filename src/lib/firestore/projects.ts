@@ -1,5 +1,5 @@
 import { db } from "../firebase/firebase.config";
-import { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
 
 export interface Project {
     id?: string;
@@ -19,3 +19,11 @@ export const getProject = async (id: string): Promise<Project | null> => {
 };
 export const updateProject = async (id: string, data: Partial<Project>) => updateDoc(doc(db, "projects", id), data);
 export const deleteProject = async (id: string) => deleteDoc(doc(db, "projects", id));
+
+
+
+export const getProjectsByOrg = async (orgId: string): Promise<Project[]> => {
+  const q = query(collection(db, "projects"), where("orgId", "==", orgId));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
+};
