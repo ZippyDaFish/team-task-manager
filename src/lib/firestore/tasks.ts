@@ -1,5 +1,5 @@
 import { db } from "../firebase/firebase.config";
-import { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
 
 export interface Task {
     id?: string;
@@ -20,3 +20,9 @@ export const getTask = async (id: string): Promise<Task | null> => {
 };
 export const updateTask = async (id: string, data: Partial<Task>) => updateDoc(doc(db, "tasks", id), data);
 export const deleteTask = async (id: string) => deleteDoc(doc(db, "tasks", id));
+
+export const getTasksByProject = async (projectId: string): Promise<Task[]> => {
+    const q = query(tasksCol, where("projectId", "==", projectId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Task));
+};

@@ -4,6 +4,8 @@
     import type { UserWithOrg } from "$lib/firestore/types";
     import { getProjectsByOrg } from "$lib/firestore/projects";
     import type { Project } from "$lib/firestore/projects";
+    import type { Task } from "$lib/firestore/tasks";
+    import { getTasksByProject } from "$lib/firestore/tasks";
 
     import MainPanel from "../lib/MainPanel.svelte";
 
@@ -47,6 +49,28 @@
         loading = false;
         }
     });
+
+    let tasks: Task[] = [];
+    let tasksLoading = false;
+
+    let lastProjectId: string | null = null;
+
+    $: if (selectedProject?.id && selectedProject.id !== lastProjectId) {
+        lastProjectId = selectedProject.id;
+        loadTasks(selectedProject.id);
+    }
+
+    async function loadTasks(projectId: string) {
+        tasksLoading = true;
+        try {
+            tasks = await getTasksByProject(projectId);
+        } catch (err) {
+            console.error(err);
+            error = "Failed to load tasks";
+        } finally {
+            tasksLoading = false;
+        }
+    }
 </script>
 
 <div class="min-h-screen flex bg-gray-200">
@@ -77,4 +101,15 @@
     </aside>
 
     <MainPanel {loading} {error} {user} {org} {role} {selectedProject}/>
+    {#if tasksLoading}
+        <p>Loading tasks...</p>
+    {:else if tasks.length === 0}
+        <p>No tasks for this project</p>
+    {:else}
+        <ul>
+            {#each tasks as task}
+                <li>{task.name}</li>
+            {/each}
+        </ul>
+    {/if}
 </div>
