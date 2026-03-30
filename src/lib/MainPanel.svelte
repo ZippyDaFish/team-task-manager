@@ -1,5 +1,5 @@
 <script lang="ts">
-    let { loading, error, user, org, role } = $props();
+    let { loading, error, user, org, role, selectedProject } = $props();
 </script>
 
 <!-- Main -->

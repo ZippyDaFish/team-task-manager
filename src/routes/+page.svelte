@@ -11,6 +11,8 @@
     let org = "Org";
     let role = "Role";
 
+    let selectedProject: Project | null = null;
+
     let loading = true;
     let error: string | null = null;
 
@@ -60,12 +62,19 @@
           {:else if projects.length === 0}
               <span>No projects</span>
           {:else}
-              {#each projects as project}
-                  <a href="#" class="hover:text-gray-300">{project.name}</a>
-              {/each}
+            {#each projects as project}
+                <button
+                    on:click={() => (selectedProject = project)}
+                    class={`text-left hover:text-gray-300 ${
+                        selectedProject?.id === project.id ? "font-bold text-gray-900 bg-gray-200 w-60 hover:text-gray-900" : ""
+                    }`}
+                >
+                    {project.name}
+                </button>
+            {/each}
           {/if}
       </nav>
     </aside>
 
-    <MainPanel loading={loading} error={error} user={user} org={org} role={role} />
+    <MainPanel {loading} {error} {user} {org} {role} {selectedProject}/>
 </div>
